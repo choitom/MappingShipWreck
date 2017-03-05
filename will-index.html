@@ -1,16 +1,151 @@
-<://ships.richardsw.com/images/coins.png' },
-     dolia: { label: 'http://ships.richardsw.com/images/dolia.png' },
-     glass: { label: 'http://ships.richardsw.com/images/glass.png' },
-     grain: { label: 'http://ships.richardsw.com/images/grain.png' },
-     lamps: { label: 'http://ships.richardsw.com/images/lamp.png' },
-     marble: { label: 'http://ships.richardsw.com/images/stone.png' },
-     masonry: { label: 'http://ships.richardsw.com/images/stone.png' },
-     metal: { label: 'http://ships.richardsw.com/images/metal.png' },
-     stone: { label: 'http://ships.richardsw.com/images/stone.png' },
-     tiles: { label: 'http://ships.richardsw.com/images/tiles.png' },
-     'nothing reported': { label: 'http://ships.richardsw.com/images/unknown.png' }
+<!DOCTYPE html >
+<html>
+<head> 
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 
-     };
+<title>Sunken Ships Interactive Map</title>
+<style type="text/css">
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 5%;
+        padding: 5%;
+      }
+      
+      #pac-input {
+        background-color: #fff;
+        font-family: Roboto;
+        font-size: 15px;
+        font-weight: 300;
+        margin-left: 12px;
+        padding: 0 11px 0 13px;
+        text-overflow: ellipsis;
+        width: 400px;
+      }
+
+      #pac-input:focus {
+        border-color: #4d90fe;
+      }
+      
+      
+       #navigation {
+      position: absolute;
+      top: 0;
+      width: 100%;
+
+      }
+      
+      #navigation li {
+        list-style: none;
+        display: block;
+        float: left;
+        margin: 1em;
+      }
+
+#navigation li a {
+        text-shadow: 0 2px 1px rgba(0,0,0,0.5);
+        display: block;
+        text-decoration: none;
+        color: #f0f0f0;
+        font-size: 1.6em;
+        margin: 0 .5em;
+}
+
+#navigation li a:hover {
+        margin-top: 2px;
+}
+
+#navigation_container {
+   margin: 0 auto;
+   width: 960px;
+}
+
+
+
+
+      </style>
+</head>
+<body>
+
+<div id="navigation_container">
+ 
+ 
+   <ul id="navigation">
+      <li><a href="#">&#10029; The Data</a></li>
+      <li><a href="#">&#10029; The Story</a></li>
+      <li><a href="#">&#10029; The Process</a></li>
+      <li><a href="#">&#10029; Resources</a></li>
+
+      <li><a href="#">&#10029; About us</a></li>
+   </ul>
+ 
+</div>
+
+<div id="map"></div>
+<input id="pac-input" class="controls" type="text" placeholder="Search Box">
+<form action="#">
+  Amphoras: <input type="checkbox" id="eatbox" onclick="boxclick(this,'ampohoras')" /> &nbsp;&nbsp;
+  Coins: <input type="checkbox" id="staybox" onclick="boxclick(this,'coins')" /> &nbsp;&nbsp;
+  BOoty: <input type="checkbox" id="shopbox" onclick="boxclick(this,'booty')" />&nbsp;&nbsp;
+  Cutlasses: <input type="checkbox" id="playbox" onclick="boxclick(this,'cutlasses')" />&nbsp;&nbsp;
+  Skeletons: <input type="checkbox" id="communitybox" onclick="boxclick(this,'skeletons')" /><br />
+</form>  
+
+
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js&sensor=false"></script>
+<script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn-history/r358/trunk/infobox/src/infobox.js"></script>
+
+<script>
+var customLabel = {
+  amphoras: {
+    label: 'http://ships.richardsw.com/images/amphora.png'
+  },
+  ceramics: {
+    label: 'http://ships.richardsw.com/images/ceramics.png'
+  },
+  coins: {
+    label: 'http://ships.richardsw.com/images/coins.png'
+  },
+  dolia: {
+    label: 'http://ships.richardsw.com/images/dolia.png'
+  },
+  glass: {
+    label: 'http://ships.richardsw.com/images/glass.png'
+  },
+  grain: {
+    label: 'http://ships.richardsw.com/images/grain.png'
+  },
+  lamps: {
+    label: 'http://ships.richardsw.com/images/lamp.png'
+  },
+  marble: {
+    label: 'http://ships.richardsw.com/images/stone.png'
+  },
+  masonry: {
+    label: 'http://ships.richardsw.com/images/stone.png'
+  },
+  metal: {
+    label: 'http://ships.richardsw.com/images/metal.png'
+  },
+  stone: {
+    label: 'http://ships.richardsw.com/images/stone.png'
+  },
+  tiles: {
+    label: 'http://ships.richardsw.com/images/tiles.png'
+  },
+  'nothing reported': {
+    label: 'http://ships.richardsw.com/images/unknown.png'
+  }
+
+};
 
       function initMap() {
        var map = new google.maps.Map(document.getElementById('map'), {
@@ -18,17 +153,11 @@
          zoom: 6
         });
        var infoWindow = new google.maps.InfoWindow;
-
-
        downloadUrl('http://ships.richardsw.com/ships.php', function(data) {
-
            var xml = data.responseXML;
            var markers = xml.documentElement.getElementsByTagName('ship');
-
-
-									   var markerArray = [];
+   var markerArray = [];
            Array.prototype.forEach.call(markers, function(markerElem) {
-
              var name = markerElem.getAttribute('Name');
              var comments = markerElem.getAttribute('Comments');
              var c1_Type = markerElem.getAttribute('c1_Type');
@@ -37,21 +166,16 @@
              var point = new google.maps.LatLng(
                  parseFloat(markerElem.getAttribute('Lattitude')),
                  parseFloat(markerElem.getAttribute('Longitude')));
-
-
              var infowincontent = document.createElement('div');
              var strong = document.createElement('strong');
              strong.textContent = name;
              infowincontent.appendChild(strong);
              infowincontent.appendChild(document.createElement('br'));
-
              
              var text = document.createElement('text');
              text.textContent =  comments;
              infowincontent.appendChild(text);
-
              var icon = customLabel[c1_Type] || {};
-
              var marker = new google.maps.Marker({
                map: map,
                position: point,
@@ -66,52 +190,39 @@
                infoWindow.open(map, marker);
                });
                
-	            });
-		         var markerCluster = new MarkerClusterer(map, markerArray,
+            });
+         var markerCluster = new MarkerClusterer(map, markerArray,
             {imagePath: 'https://ships.richardsw.com/images/cluster/m'});
-								       });
-								        
-
+       });
+        
       }
-
-
-
      function downloadUrl(url, callback) {
        var request = window.ActiveXObject ?
            new ActiveXObject('Microsoft.XMLHTTP') :
            new XMLHttpRequest;
-
        request.onreadystatechange = function() {
          if (request.readyState == 4) {
            request.onreadystatechange = doNothing;
            callback(request, request.status);
          }
        };
-
        request.open('GET', url, true);
        request.send(null);
      }
-
  
      function search(){
      var input = document.getElementById('pac-input');
         var searchBox = new google.maps.places.SearchBox(input);
         map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-
         map.addListener('bounds_changed', function() {
           searchBox.setBounds(map.getBounds());
         }); 
         
         var markers = [];}
-
      function doNothing() {}
-     
 
 
-
-         
-
-    </script>
+</script>
     
     
     <script src="http://ships.richardsw.com/markerclusterer.js"></script>
